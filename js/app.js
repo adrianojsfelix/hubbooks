@@ -2,6 +2,7 @@ import { db } from './db.js';
 import { inspectPdf, loadPdf, getOutline } from './pdf.js';
 import { Reader } from './reader.js';
 import { drive, DriveAuthError } from './drive.js';
+import { initCourses } from './courses.js';
 
 const $ = id => document.getElementById(id);
 
@@ -30,7 +31,9 @@ const state = {
   reading: null,
   downloads: new Map(),       // id -> progresso 0..1
   syncing: false,
+  tab: load('hb-tab', 'books'),
 };
+let courses = null;   // módulo de cursos (inicializado após carregar os dados)
 
 function load(key, fallback) { try { return localStorage.getItem(key) ?? fallback; } catch { return fallback; } }
 function save(key, value) { try { localStorage.setItem(key, value); } catch {} }
@@ -243,8 +246,19 @@ function visibleBooks() {
   return list.sort(cmp);
 }
 
+function renderTabs() {
+  document.querySelectorAll('#tabs .tab').forEach(t => t.classList.toggle('active', t.dataset.tab === state.tab));
+  $('booksView').hidden = state.tab !== 'books';
+  $('coursesView').hidden = state.tab !== 'courses';
+  $('tabBooksN').textContent = state.books.length || '';
+  $('addBtn').querySelector('span').textContent = state.tab === 'courses' ? 'Adicionar curso' : 'Adicionar PDF';
+  $('search').placeholder = state.tab === 'courses' ? 'Buscar curso' : 'Buscar livro ou autor';
+}
+
 function render() {
   renderHeader();
+  renderTabs();
+  if (state.tab === 'courses') { courses?.render(); renderStats(); return; }
   renderHero();
   renderStats();
   const lib = $('library');
@@ -294,7 +308,8 @@ function render() {
 
 function renderHeader() {
   const h = new Date().getHours();
-  $('greeting').textContent = h < 5 ? 'Boa madrugada de leitura' : h < 12 ? 'Bom dia, bora ler?' : h < 18 ? 'Boa tarde, bora ler?' : 'Boa noite, hora de ler';
+  const verb = state.tab === 'courses' ? 'estudar' : 'ler';
+  $('greeting').textContent = h < 5 ? `Boa madrugada, bora ${verb}?` : h < 12 ? `Bom dia, bora ${verb}?` : h < 18 ? `Boa tarde, bora ${verb}?` : `Boa noite, hora de ${verb}`;
   const d = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
   $('today').textContent = d[0].toUpperCase() + d.slice(1);
 }
@@ -444,7 +459,8 @@ function renderStats() {
   if (!perDay[dateKey(d)]) d.setDate(d.getDate() - 1);
   while (perDay[dateKey(d)]) { streak++; d.setDate(d.getDate() - 1); }
   $('stStreak').parentElement.innerHTML = `<b id="stStreak">${streak}</b> ${streak === 1 ? 'dia seguido' : 'dias seguidos'}`;
-  $('stTime').textContent = fmtDuration(timeDay[today] || 0).replace('menos de 1 min', '0 min');
+  const studySec = (timeDay[today] || 0) + (courses?.timeOn(today) || 0);
+  $('stTime').textContent = fmtDuration(studySec).replace('menos de 1 min', '0 min');
 
   // Meta do dia
   const todayPages = perDay[today] || 0;
@@ -519,7 +535,14 @@ $('sort').addEventListener('change', e => { state.sort = e.target.value; save('h
 $('collection').addEventListener('change', e => { state.collection = e.target.value; save('hb-collection', state.collection); render(); });
 $('search').addEventListener('input', e => { state.query = e.target.value; render(); });
 
-$('addBtn').onclick = () => $('fileInput').click();
+$('addBtn').onclick = () => (state.tab === 'courses' ? $('addCourseBtn').click() : $('fileInput').click());
+$('tabs').addEventListener('click', e => {
+  const t = e.target.closest('.tab')?.dataset.tab;
+  if (!t || t === state.tab) return;
+  state.tab = t;
+  save('hb-tab', t);
+  render();
+});
 document.querySelector('.start-opt[data-action="add"]').onclick = () => $('fileInput').click();
 document.querySelector('.start-opt[data-action="drive"]').onclick = () => openDriveDialog();
 $('fileInput').addEventListener('change', e => { addFiles(e.target.files); e.target.value = ''; });
@@ -590,7 +613,7 @@ async function showStorage() {
 }
 
 function exportBackup() {
-  const data = { app: 'hubbooks', version: 1, exportedAt: new Date().toISOString(), books: state.books, tombstones: state.tombstones, settings: { goal: state.goal, goalAt: +load('hb-goal-at', '0') } };
+  const data = { app: 'hubbooks', version: 1, exportedAt: new Date().toISOString(), books: state.books, courses: courses?.export() || [], tombstones: state.tombstones, settings: { goal: state.goal, goalAt: +load('hb-goal-at', '0') } };
   const blob = new Blob([JSON.stringify(data, null, 1)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -647,6 +670,7 @@ async function mergeRemote(data) {
   }
   state.tombstones = tomb;
   await db.setMeta('tombstones', tomb);
+  if (courses) changed += await courses.merge(data.courses, tomb);
   if (data.settings?.goal && (data.settings.goalAt || 0) > +load('hb-goal-at', '0')) {
     state.goal = data.settings.goal;
     save('hb-goal', state.goal);
@@ -1082,7 +1106,7 @@ async function openReader(book, page) {
 
 addEventListener('popstate', () => { if (!$('reader').hidden) reader.close(); });
 addEventListener('visibilitychange', () => {
-  if (document.hidden) { if (state.reading) persist(state.reading); syncNow(); }
+  if (document.hidden) { if (state.reading) persist(state.reading); courses?.persist(); syncNow(); }
   else if (drive.connected && Date.now() - drive.lastSync > 60_000) syncNow();
 });
 
@@ -1097,7 +1121,7 @@ function updateDriveButton() {
   btn.classList.toggle('warn', !drive.connected && drive.wasConnected);
   btn.classList.toggle('busy', state.syncing);
   const label = state.syncing ? 'Sincronizando…'
-    : drive.connected ? (drive.folder ? 'Drive conectado' : 'Escolher pasta')
+    : drive.connected ? 'Drive conectado'
     : drive.wasConnected ? 'Reconectar Drive' : 'Google Drive';
   $('driveLabel').textContent = label;
   btn.title = drive.connected && drive.lastSync ? `Sincronizado às ${new Date(drive.lastSync).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}` : label;
@@ -1356,10 +1380,11 @@ async function syncNow(verbose = false) {
       await drive.writeSync({
         app: 'hubbooks', version: 1, updatedAt: Date.now(),
         books: state.books.map(({ cover, zoom, ...b }) => b), // capas ficam só no aparelho
+        courses: courses?.export() || [],
         tombstones: state.tombstones, settings: { goal: state.goal, goalAt: +load('hb-goal-at', '0') },
       });
       drive.lastSync = Date.now();
-      if (changed && !state.reading) render();
+      if (changed && !state.reading && !courses?.isOpen()) render();
       if (verbose) toast(changed ? `Sincronizado: ${plural(changed, 'livro atualizado', 'livros atualizados')} de outro aparelho.` : 'Tudo sincronizado ✓');
     } catch (err) {
       if (err instanceof DriveAuthError) updateDriveButton();
@@ -1378,7 +1403,30 @@ async function syncNow(verbose = false) {
 const theme = load('hb-theme', '');
 if (theme) document.documentElement.dataset.theme = theme;
 
-refresh().then(() => {
+/** Abre um PDF do Drive (material de aula) no leitor, criando o livro na estante se preciso. */
+async function openDrivePdf(file, collection, lessonTitle) {
+  if (!file) return;
+  const id = 'drive:' + file.id;
+  let book = bookById(id);
+  if (!book) {
+    book = normalize({ id, source: 'drive', driveId: file.id, title: /^(aula|material|slides?|resumo)$/i.test(cleanTitle(file.name)) && lessonTitle ? `${lessonTitle} (${cleanTitle(file.name).toLowerCase()})` : cleanTitle(file.name), fileName: file.name, fileSize: file.size || 0, collection: collection || '' });
+    if (state.tombstones[id]) { delete state.tombstones[id]; await db.setMeta('tombstones', state.tombstones); }
+    await persist(book);
+  }
+  openReader(book);
+}
+
+refresh().then(async () => {
+  if (drive.connected) drive.shareTokenWithWorker();
+  courses = await initCourses({
+    toast, esc, plural, fmtDuration, dateKey, load, save, scheduleSync, connectDrive, openDriveDialog, openDrivePdf,
+    query: () => state.query,
+    driveError: err => handleDriveError(err),
+    onChange: () => { renderStats(); renderTabs(); },
+    deadlineText: (deadline, done) => deadlineInfo({ status: done ? 'done' : 'reading', deadline, totalPages: 0, currentPage: 0 }),
+    tombstone: async id => { state.tombstones[id] = Date.now(); await db.setMeta('tombstones', state.tombstones); scheduleSync(); },
+  });
+  render();
   updateDriveButton();
   if (drive.connected) {
     if (drive.folder) syncAll({ interactive: false }); else syncNow();

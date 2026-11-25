@@ -52,6 +52,7 @@ export const drive = {
     }
     token = { value: resp.access_token, exp: Date.now() + (resp.expires_in || 3600) * 1000 };
     try { sessionStorage.setItem('hb-drive-token', JSON.stringify(token)); } catch {}
+    shareTokenWithWorker();
     ls.set('hb-drive-connected', '1');
   },
 
@@ -62,6 +63,85 @@ export const drive = {
     ls.set('hb-drive-connected', null);
     ls.set('hb-drive-folder', null);
     ls.set('hb-drive-syncfile', null);
+  },
+
+  /** Extrai o ID de um link do Drive (pasta ou arquivo) ou devolve o próprio texto se já for um ID. */
+  parseId(text) {
+    const t = text.trim();
+    const m = t.match(/\/folders\/([\w-]{10,})/) || t.match(/\/d\/([\w-]{10,})/) || t.match(/[?&]id=([\w-]{10,})/);
+    if (m) return m[1];
+    return /^[\w-]{20,}$/.test(t) ? t : '';
+  },
+
+  /** Lista o conteúdo direto de uma pasta (todas as páginas). */
+  async children(folderId, fields = 'id,name,mimeType,size,thumbnailLink,videoMediaMetadata(durationMillis)') {
+    const out = [];
+    let pageToken;
+    do {
+      const r = await api(`/files?${qs({
+        q: `'${folderId}' in parents and trashed=false`,
+        fields: `nextPageToken,files(${fields})`, pageSize: 1000, ...ALL, ...(pageToken ? { pageToken } : {}),
+      })}`);
+      out.push(...r.files);
+      pageToken = r.nextPageToken;
+    } while (pageToken);
+    return out;
+  },
+
+  /**
+   * Varre uma árvore de pastas em paralelo. Retorna os arquivos (não pastas) com `path` = nomes das pastas
+   * desde a raiz. `skip(path)` permite pular subpastas; `accept(file)` filtra arquivos.
+   */
+  async scanTree(rootId, { skip, accept, onProgress, concurrency = 6 } = {}) {
+    const files = [];
+    const queue = [{ id: rootId, path: [] }];
+    let active = 0, folders = 0, failed = null;
+    await new Promise(resolve => {
+      const pump = () => {
+        if (failed) return;
+        while (active < concurrency && queue.length) {
+          const { id, path } = queue.shift();
+          active++;
+          this.children(id).then(items => {
+            folders++;
+            for (const f of items) {
+              if (f.mimeType === FOLDER) {
+                const p = [...path, f.name];
+                if (!skip?.(p)) queue.push({ id: f.id, path: p });
+              } else if (!accept || accept(f)) {
+                files.push({ ...f, size: +f.size || 0, path, parentId: id });
+              }
+            }
+            onProgress?.({ folders, files: files.length, pending: queue.length + active - 1 });
+          }).catch(err => { failed = err; resolve(); })
+            .finally(() => { active--; if (!queue.length && !active) resolve(); else pump(); });
+        }
+      };
+      pump();
+    });
+    if (failed) throw failed;
+    return files;
+  },
+
+  /** URL local de streaming do vídeo (o service worker adiciona a autorização). */
+  mediaUrl(fileId, size) { return `__drive-media/${encodeURIComponent(fileId)}?size=${size || 0}`; },
+  previewUrl(fileId) { return `https://drive.google.com/file/d/${encodeURIComponent(fileId)}/preview`; },
+  viewUrl(fileId) { return `https://drive.google.com/file/d/${encodeURIComponent(fileId)}/view`; },
+  folderUrl(id) { return `https://drive.google.com/drive/folders/${encodeURIComponent(id)}`; },
+  /** Miniatura via cookies do navegador (funciona se você estiver logado no Google neste navegador). */
+  cookieThumb(fileId, size = 1600) { return `https://drive.google.com/thumbnail?id=${encodeURIComponent(fileId)}&sz=w${size}`; },
+  shareTokenWithWorker: () => shareTokenWithWorker(),
+
+  /** Imagem (miniatura grande) como URL local; tenta a API autenticada e depois o link com cookies. */
+  async imageUrl(file, size = 1600) {
+    if (file.thumbnailLink) {
+      try {
+        const res = await authed(file.thumbnailLink.replace(/=s\d+$/, `=s${size}`));
+        const blob = await res.blob();
+        if (blob.type.startsWith('image/')) return URL.createObjectURL(blob);
+      } catch (err) { if (err instanceof DriveAuthError) throw err; }
+    }
+    return this.cookieThumb(file.id, size);
   },
 
   /** Procura pastas pelo nome (ignora espaços: "L E I T U R A" ≈ "leitura"). */
@@ -181,6 +261,16 @@ export const drive = {
 
 const ALL = { supportsAllDrives: true, includeItemsFromAllDrives: true };
 const qs = o => new URLSearchParams(o).toString();
+
+/** Entrega o token ao service worker (para o streaming de vídeos). */
+async function shareTokenWithWorker() {
+  if (!token) return;
+  try {
+    const c = await caches.open('hb-auth');
+    await c.put('/__hb-token', new Response(JSON.stringify(token)));
+  } catch {}
+  navigator.serviceWorker?.controller?.postMessage({ type: 'drive-token', token });
+}
 
 async function syncFileId() {
   const cached = ls.get('hb-drive-syncfile');

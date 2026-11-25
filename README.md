@@ -8,6 +8,15 @@ Estante pessoal de livros em PDF: leia dentro do app e acompanhe **progresso, st
 - **"Continue de onde parou"**, **meta diária de páginas**, tempo de leitura e estimativa de tempo para terminar.
 - Novo visual: capas em formato de livro, tipografia serifada, prazos rápidos (1 semana, 2 semanas, 1 mês), marcadores na barra do leitor.
 
+## Cursos (aba "Cursos")
+- Adicione a pasta de um curso do Google Drive (cole o link ou busque pelo nome) e escolha quais módulos entram.
+- As aulas (vídeos) viram um **checklist por módulo e tópico**, com progresso, tempo restante e destaque da aula atual.
+- **Assista dentro do app**: o vídeo é transmitido direto do Drive, lembra onde você parou, tem controle de velocidade e marca a aula como assistida ao chegar em 90%. Ao terminar, oferece a próxima aula.
+- PDFs da aula abrem no leitor do HubBooks; pastas só com PDFs (apostilas) viram itens do checklist.
+- **Mapas mentais**: escolha a pasta com as imagens (ex.: SEGURIDADE SOCIAL); cada mapa aparece na aula correspondente pelo nome (ou vincule manualmente) e abre em tela cheia com zoom.
+- Anotações por aula e “marcar todas até esta como assistidas” para quem já está no meio do curso.
+- Atalhos: Espaço (play/pausa), ← → (10 s), N/P (próxima/anterior), M (marcar).
+
 ## Recursos
 - **Adicionar PDFs** (botão ou arrastar e soltar). Capa, título, autor e nº de páginas são lidos do arquivo.
 - **Leitor integrado** (PDF.js): rolagem contínua, zoom (botões, Ctrl+roda, pinça no celular), ir para página, barra de posição, modo noturno, marcadores, atalhos de teclado (← → Espaço Home End + − 0 Esc). Toque no centro da página esconde as barras no celular.

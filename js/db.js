@@ -1,6 +1,6 @@
 // Armazenamento local (IndexedDB): metadados dos livros + arquivos PDF.
 const DB_NAME = 'hubbooks';
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 let dbPromise;
 
 function open() {
@@ -12,6 +12,7 @@ function open() {
         if (!db.objectStoreNames.contains('books')) db.createObjectStore('books', { keyPath: 'id' });
         if (!db.objectStoreNames.contains('files')) db.createObjectStore('files', { keyPath: 'id' });
         if (!db.objectStoreNames.contains('meta')) db.createObjectStore('meta', { keyPath: 'key' });
+        if (!db.objectStoreNames.contains('courses')) db.createObjectStore('courses', { keyPath: 'id' });
       };
       req.onsuccess = () => resolve(req.result);
       req.onerror = () => reject(req.error);
@@ -40,6 +41,9 @@ export const db = {
   getFile: async id => (await run('files', 'readonly', s => s.get(id)))?.data,
   deleteFile: id => run('files', 'readwrite', s => s.delete(id)),
   fileIds: () => run('files', 'readonly', s => s.getAllKeys()),
+  allCourses: () => run('courses', 'readonly', s => s.getAll()),
+  putCourse: c => run('courses', 'readwrite', s => s.put(c)),
+  deleteCourse: id => run('courses', 'readwrite', s => s.delete(id)),
   getMeta: async key => (await run('meta', 'readonly', s => s.get(key)))?.value,
   setMeta: (key, value) => run('meta', 'readwrite', s => s.put({ key, value })),
 };

@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>HubBooks</title>
+  <meta name="description" content="Sua estante de PDFs: leia, acompanhe o progresso, status e prazos de cada livro.">
+  <meta name="theme-color" content="#4f46e5">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- ============ BIBLIOTECA ============ -->
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <img src="icons/icon.svg" alt="" width="32" height="32">
+        <span>HubBooks</span>
+      </div>
+      <label class="search">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.5 4a6.5 6.5 0 1 0 4.03 11.6l4.43 4.43 1.06-1.06-4.43-4.43A6.5 6.5 0 0 0 10.5 4Zm0 1.5a5 5 0 1 1 0 10 5 5 0 0 1 0-10Z"/></svg>
+        <input id="search" type="search" placeholder="Buscar título ou autor" autocomplete="off">
+      </label>
+      <div class="topbar-actions">
+        <button class="icon-btn" id="menuBtn" aria-label="Mais opções" aria-haspopup="menu">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg>
+        </button>
+        <div class="menu" id="menu" role="menu" hidden>
+          <button role="menuitem" data-menu="export">Exportar backup (.json)</button>
+          <button role="menuitem" data-menu="import">Importar backup</button>
+          <button role="menuitem" data-menu="theme">Alternar tema claro/escuro</button>
+          <button role="menuitem" data-menu="storage">Uso de armazenamento</button>
+        </div>
+        <button class="btn primary" id="addBtn">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg>
+          <span>Adicionar PDF</span>
+        </button>
+      </div>
+      <input id="fileInput" type="file" accept="application/pdf,.pdf" multiple hidden>
+      <input id="importInput" type="file" accept="application/json,.json" hidden>
+    </header>
+
+    <main class="container">
+      <!-- Painel de estatísticas -->
+      <section class="stats" aria-label="Resumo">
+        <div class="stat"><span class="stat-num" id="stTotal">0</span><span class="stat-label">Livros</span></div>
+        <div class="stat"><span class="stat-num" id="stReading">0</span><span class="stat-label">Lendo</span></div>
+        <div class="stat"><span class="stat-num" id="stDone">0</span><span class="stat-label">Concluídos</span></div>
+        <div class="stat warn-stat"><span class="stat-num" id="stLate">0</span><span class="stat-label">Atrasados</span></div>
+        <div class="stat week">
+          <div class="week-head">
+            <span class="stat-label">Páginas nos últimos 7 dias</span>
+            <span class="streak" id="stStreak" title="Dias seguidos lendo">🔥 0</span>
+          </div>
+          <div class="bars" id="weekBars"></div>
+        </div>
+      </section>
+
+      <!-- Controles -->
+      <section class="controls">
+        <div class="chips" id="filters" role="tablist" aria-label="Filtrar por status">
+          <button class="chip active" data-filter="all">Todos</button>
+          <button class="chip" data-filter="reading">Lendo</button>
+          <button class="chip" data-filter="queue">Quero ler</button>
+          <button class="chip" data-filter="paused">Pausado</button>
+          <button class="chip" data-filter="done">Concluído</button>
+          <button class="chip" data-filter="dropped">Abandonado</button>
+          <button class="chip" data-filter="late">Atrasados</button>
+        </div>
+        <div class="controls-right">
+          <select id="sort" aria-label="Ordenar">
+            <option value="recent">Lidos recentemente</option>
+            <option value="deadline">Prazo mais próximo</option>
+            <option value="progress">Maior progresso</option>
+            <option value="title">Título (A–Z)</option>
+            <option value="added">Adicionados recentemente</option>
+          </select>
+          <div class="seg" role="tablist" aria-label="Visualização">
+            <button class="seg-btn active" data-view="grid" title="Estante">
+              <svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg>
+              <span>Estante</span>
+            </button>
+            <button class="seg-btn" data-view="list" title="Checklist">
+              <svg viewBox="0 0 24 24"><path d="M9 6h11v2H9zM9 11h11v2H9zM9 16h11v2H9zM4 5.5l1 1 2-2 1 1-3 3-2-2zM4 10.5l1 1 2-2 1 1-3 3-2-2zM4 15.5l1 1 2-2 1 1-3 3-2-2z"/></svg>
+              <span>Checklist</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section id="library" aria-live="polite"></section>
+
+      <section id="empty" class="empty" hidden>
+        <div class="empty-art" aria-hidden="true">📚</div>
+        <h2>Sua estante está vazia</h2>
+        <p>Adicione seus livros em PDF para ler aqui dentro e acompanhar o progresso, status e prazo de cada um.</p>
+        <button class="btn primary" data-action="add">Adicionar PDF</button>
+        <p class="hint">Dica: você também pode arrastar arquivos PDF para esta janela.</p>
+      </section>
+    </main>
+  </div>
+
+  <div id="dropzone" hidden><div>Solte os PDFs para adicionar à estante</div></div>
+
+  <!-- ============ LEITOR ============ -->
+  <section id="reader" hidden aria-label="Leitor de PDF">
+    <header class="reader-bar">
+      <button class="icon-btn" id="rdBack" aria-label="Voltar para a estante">
+        <svg viewBox="0 0 24 24"><path d="M15.4 5.4 14 4l-8 8 8 8 1.4-1.4L8.8 12z"/></svg>
+      </button>
+      <div class="reader-title" id="rdTitle"></div>
+      <div class="reader-tools">
+        <button class="icon-btn hide-sm" id="rdZoomOut" aria-label="Diminuir zoom"><svg viewBox="0 0 24 24"><path d="M5 11h14v2H5z"/></svg></button>
+        <button class="zoom-label hide-sm" id="rdZoomFit" title="Ajustar à largura">100%</button>
+        <button class="icon-btn hide-sm" id="rdZoomIn" aria-label="Aumentar zoom"><svg viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg></button>
+        <button class="icon-btn" id="rdNight" aria-label="Modo noturno da página" title="Modo noturno">
+          <svg viewBox="0 0 24 24"><path d="M12.3 3a9 9 0 1 0 8.7 11.3A7 7 0 0 1 12.3 3Z"/></svg>
+        </button>
+        <button class="icon-btn" id="rdBookmark" aria-label="Marcar esta página" title="Marcador">
+          <svg viewBox="0 0 24 24"><path class="bm-fill" d="M6 3h12v18l-6-4-6 4z"/></svg>
+        </button>
+        <button class="icon-btn" id="rdInfo" aria-label="Detalhes do livro" title="Detalhes">
+          <svg viewBox="0 0 24 24"><path d="M11 10h2v7h-2zM11 7h2v2h-2z"/><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 18.2a8.2 8.2 0 1 1 0-16.4 8.2 8.2 0 0 1 0 16.4Z"/></svg>
+        </button>
+      </div>
+    </header>
+    <div id="rdScroller" tabindex="0">
+      <div id="rdPages"></div>
+    </div>
+    <footer class="reader-foot">
+      <div class="page-jump">
+        <input id="rdPage" type="number" min="1" inputmode="numeric" aria-label="Página atual">
+        <span>/ <span id="rdTotal">0</span></span>
+      </div>
+      <input id="rdSlider" type="range" min="1" value="1" aria-label="Posição no livro">
+      <span class="rd-pct" id="rdPct">0%</span>
+      <div class="show-sm zoom-sm">
+        <button class="icon-btn" id="rdZoomOutSm" aria-label="Diminuir zoom"><svg viewBox="0 0 24 24"><path d="M5 11h14v2H5z"/></svg></button>
+        <button class="icon-btn" id="rdZoomInSm" aria-label="Aumentar zoom"><svg viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg></button>
+      </div>
+    </footer>
+    <div class="reader-loading" id="rdLoading">Abrindo livro…</div>
+  </section>
+
+  <!-- ============ DETALHES ============ -->
+  <dialog id="details">
+    <form method="dialog" id="detailsForm">
+      <header class="dlg-head">
+        <h2 id="dTitleHead">Detalhes do livro</h2>
+        <button class="icon-btn" value="cancel" aria-label="Fechar"><svg viewBox="0 0 24 24"><path d="m6.4 5 5.6 5.6L17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6l5.6-5.6L5 6.4z"/></svg></button>
+      </header>
+      <div class="dlg-body">
+        <div class="d-top">
+          <div class="d-cover" id="dCover"></div>
+          <div class="d-fields">
+            <label>Título<input name="title" required></label>
+            <label>Autor<input name="author" placeholder="Opcional"></label>
+            <div class="row2">
+              <label>Status
+                <select name="status">
+                  <option value="queue">Quero ler</option>
+                  <option value="reading">Lendo</option>
+                  <option value="paused">Pausado</option>
+                  <option value="done">Concluído</option>
+                  <option value="dropped">Abandonado</option>
+                </select>
+              </label>
+              <label>Prioridade
+                <select name="priority">
+                  <option value="low">Baixa</option>
+                  <option value="medium">Média</option>
+                  <option value="high">Alta</option>
+                </select>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="row3">
+          <label>Início<input type="date" name="startDate"></label>
+          <label>Prazo<input type="date" name="deadline"></label>
+          <label>Página atual<input type="number" name="currentPage" min="1" inputmode="numeric"></label>
+        </div>
+        <p class="d-plan" id="dPlan"></p>
+
+        <fieldset class="checklist">
+          <legend>Checklist do livro <span class="muted" id="dCheckCount"></span></legend>
+          <ul id="dChecklist"></ul>
+          <div class="check-add">
+            <input id="dCheckInput" placeholder="Ex.: Capítulo 1, Fazer resumo, Revisar anotações…">
+            <button type="button" class="btn" id="dCheckAdd">Adicionar</button>
+          </div>
+          <button type="button" class="linkish" id="dCheckChapters">Gerar itens a partir do sumário do PDF</button>
+        </fieldset>
+
+        <label>Anotações<textarea name="notes" rows="4" placeholder="Ideias, citações, resumo…"></textarea></label>
+
+        <div class="bookmarks">
+          <span class="lbl">Marcadores</span>
+          <div id="dBookmarks" class="bm-list"></div>
+        </div>
+
+        <div class="relink" id="dRelink" hidden>
+          <p>⚠️ O arquivo PDF deste livro não está neste aparelho.</p>
+          <button type="button" class="btn" id="dRelinkBtn">Anexar PDF</button>
+          <input type="file" id="dRelinkInput" accept="application/pdf,.pdf" hidden>
+        </div>
+      </div>
+      <footer class="dlg-foot">
+        <button type="button" class="btn danger-ghost" id="dDelete">Excluir</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn" id="dRead">Ler</button>
+        <button class="btn primary" value="save">Salvar</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <div id="toasts" aria-live="polite"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

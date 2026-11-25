@@ -5,38 +5,67 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>HubBooks</title>
   <meta name="description" content="Sua estante de PDFs: leia, acompanhe o progresso, status e prazos de cada livro.">
-  <meta name="theme-color" content="#4f46e5">
+  <meta name="theme-color" content="#f7f4ee" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#121214" media="(prefers-color-scheme: dark)">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><path d="M10.5 4a6.5 6.5 0 1 0 4.03 11.6l4.43 4.43 1.06-1.06-4.43-4.43A6.5 6.5 0 0 0 10.5 4Zm0 1.5a5 5 0 1 1 0 10 5 5 0 0 1 0-10Z"/></symbol>
+    <symbol id="i-more" viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></symbol>
+    <symbol id="i-drive" viewBox="0 0 24 24"><path d="M8.3 3h7.4l6.3 11-3.7 6.5H5.7L2 14 8.3 3Zm1.2 2L5.3 12.4l2.4-.1L11.9 5H9.5Zm4.5.9-6 10.6h11.9L16 12.3 13.9 8.6l.1-2.7Zm-9.7 8.6 1.9 3.3 2.2-3.8-4.1.5Z"/></symbol>
+    <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M6.5 19a4.5 4.5 0 0 1-.9-8.9A6 6 0 0 1 17.3 8.6 5.2 5.2 0 0 1 17.5 19h-11Zm0-2h11a3.2 3.2 0 0 0 0-6.4h-1.2l-.2-1a4 4 0 0 0-7.9.6l-.1 1-1 .2A2.5 2.5 0 0 0 6.5 17Z"/></symbol>
+    <symbol id="i-sync" viewBox="0 0 24 24"><path d="M12 4a8 8 0 0 1 7.4 5H17v2h6V5h-2v2.3A10 10 0 0 0 2.1 11h2A8 8 0 0 1 12 4Zm0 16a8 8 0 0 1-7.4-5H7v-2H1v6h2v-2.3A10 10 0 0 0 21.9 13h-2A8 8 0 0 1 12 20Z"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11v2H9zM9 11h11v2H9zM9 16h11v2H9zM4 5.5l1 1 2-2 1 1-3 3-2-2zM4 10.5l1 1 2-2 1 1-3 3-2-2zM4 15.5l1 1 2-2 1 1-3 3-2-2z"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="m6.4 5 5.6 5.6L17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6l5.6-5.6L5 6.4z"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M15.4 5.4 14 4l-8 8 8 8 1.4-1.4L8.8 12z"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 5h7l2 2h9v12H3V5Zm2 2v10h14V9h-7.8l-2-2H5Z"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M7 2h10a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm0 2v16h10V4H7Zm4 13h2v2h-2z"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m9.5 16.2-4.2-4.2-1.4 1.4 5.6 5.6L21 7.5l-1.4-1.4z"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 18a8 8 0 1 1 0-16 8 8 0 0 1 0 16Zm1-13h-2v6l5 3 1-1.7-4-2.3z"/></symbol>
+  </svg>
+
   <!-- ============ BIBLIOTECA ============ -->
   <div id="app">
     <header class="topbar">
       <div class="brand">
-        <img src="icons/icon.svg" alt="" width="32" height="32">
+        <img src="icons/icon.svg" alt="" width="30" height="30">
         <span>HubBooks</span>
       </div>
       <label class="search">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.5 4a6.5 6.5 0 1 0 4.03 11.6l4.43 4.43 1.06-1.06-4.43-4.43A6.5 6.5 0 0 0 10.5 4Zm0 1.5a5 5 0 1 1 0 10 5 5 0 0 1 0-10Z"/></svg>
-        <input id="search" type="search" placeholder="Buscar título ou autor" autocomplete="off">
+        <svg><use href="#i-search"/></svg>
+        <input id="search" type="search" placeholder="Buscar livro ou autor" autocomplete="off">
+        <kbd class="hide-sm">/</kbd>
       </label>
       <div class="topbar-actions">
+        <button class="drive-btn" id="driveBtn" title="Google Drive">
+          <svg><use href="#i-drive"/></svg>
+          <span class="drive-label" id="driveLabel">Google Drive</span>
+          <i class="dot" id="driveDot"></i>
+        </button>
         <button class="icon-btn" id="menuBtn" aria-label="Mais opções" aria-haspopup="menu">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="12" cy="19" r="1.8"/></svg>
+          <svg><use href="#i-more"/></svg>
         </button>
         <div class="menu" id="menu" role="menu" hidden>
+          <button role="menuitem" data-menu="goal">Definir meta diária de páginas</button>
+          <button role="menuitem" data-menu="theme">Alternar tema claro/escuro</button>
           <button role="menuitem" data-menu="export">Exportar backup (.json)</button>
           <button role="menuitem" data-menu="import">Importar backup</button>
-          <button role="menuitem" data-menu="theme">Alternar tema claro/escuro</button>
-          <button role="menuitem" data-menu="storage">Uso de armazenamento</button>
+          <button role="menuitem" data-menu="storage">Espaço usado no aparelho</button>
+          <button role="menuitem" data-menu="help">Atalhos e dicas</button>
         </div>
         <button class="btn primary" id="addBtn">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg>
+          <svg><use href="#i-plus"/></svg>
           <span>Adicionar PDF</span>
         </button>
       </div>
@@ -45,23 +74,48 @@
     </header>
 
     <main class="container">
-      <!-- Painel de estatísticas -->
-      <section class="stats" aria-label="Resumo">
-        <div class="stat"><span class="stat-num" id="stTotal">0</span><span class="stat-label">Livros</span></div>
-        <div class="stat"><span class="stat-num" id="stReading">0</span><span class="stat-label">Lendo</span></div>
-        <div class="stat"><span class="stat-num" id="stDone">0</span><span class="stat-label">Concluídos</span></div>
-        <div class="stat warn-stat"><span class="stat-num" id="stLate">0</span><span class="stat-label">Atrasados</span></div>
-        <div class="stat week">
-          <div class="week-head">
-            <span class="stat-label">Páginas nos últimos 7 dias</span>
-            <span class="streak" id="stStreak" title="Dias seguidos lendo">🔥 0</span>
+      <!-- Saudação + continuar lendo -->
+      <section class="welcome" id="welcome">
+        <div class="hello">
+          <p class="eyebrow" id="today"></p>
+          <h1 id="greeting">Olá!</h1>
+        </div>
+      </section>
+
+      <section class="top-grid" id="topGrid">
+        <article class="hero" id="hero" hidden></article>
+
+        <article class="goal-card" id="goalCard">
+          <div class="ring" id="goalRing" role="img" aria-label="Meta de hoje">
+            <svg viewBox="0 0 120 120"><circle class="ring-bg" cx="60" cy="60" r="52"/><circle class="ring-fg" id="goalArc" cx="60" cy="60" r="52"/></svg>
+            <div class="ring-text"><strong id="goalNum">0</strong><span id="goalOf">de 20 pág.</span></div>
           </div>
+          <div class="goal-side">
+            <h3>Meta de hoje</h3>
+            <p id="goalMsg">Leia um pouco hoje para manter a sequência.</p>
+            <div class="mini-stats">
+              <span title="Dias seguidos lendo"><b id="stStreak">0</b> dias seguidos</span>
+              <span title="Tempo lendo hoje"><b id="stTime">0 min</b> hoje</span>
+            </div>
+            <button class="linkish" data-menu="goal">Alterar meta</button>
+          </div>
+        </article>
+      </section>
+
+      <!-- Resumo -->
+      <section class="stats" aria-label="Resumo" id="stats">
+        <button class="stat" data-filter="all"><span class="stat-num" id="stTotal">0</span><span class="stat-label">Na estante</span></button>
+        <button class="stat" data-filter="reading"><span class="stat-num" id="stReading">0</span><span class="stat-label">Lendo agora</span></button>
+        <button class="stat" data-filter="done"><span class="stat-num" id="stDone">0</span><span class="stat-label">Concluídos</span></button>
+        <button class="stat warn-stat" data-filter="late"><span class="stat-num" id="stLate">0</span><span class="stat-label">Atrasados</span></button>
+        <div class="stat week">
+          <div class="week-head"><span class="stat-label">Últimos 7 dias</span><span class="week-total" id="weekTotal"></span></div>
           <div class="bars" id="weekBars"></div>
         </div>
       </section>
 
       <!-- Controles -->
-      <section class="controls">
+      <section class="controls" id="controls">
         <div class="chips" id="filters" role="tablist" aria-label="Filtrar por status">
           <button class="chip active" data-filter="all">Todos</button>
           <button class="chip" data-filter="reading">Lendo</button>
@@ -72,6 +126,7 @@
           <button class="chip" data-filter="late">Atrasados</button>
         </div>
         <div class="controls-right">
+          <select id="collection" aria-label="Coleção" hidden></select>
           <select id="sort" aria-label="Ordenar">
             <option value="recent">Lidos recentemente</option>
             <option value="deadline">Prazo mais próximo</option>
@@ -80,14 +135,8 @@
             <option value="added">Adicionados recentemente</option>
           </select>
           <div class="seg" role="tablist" aria-label="Visualização">
-            <button class="seg-btn active" data-view="grid" title="Estante">
-              <svg viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v7h-7zM4 13h7v7H4zM13 13h7v7h-7z"/></svg>
-              <span>Estante</span>
-            </button>
-            <button class="seg-btn" data-view="list" title="Checklist">
-              <svg viewBox="0 0 24 24"><path d="M9 6h11v2H9zM9 11h11v2H9zM9 16h11v2H9zM4 5.5l1 1 2-2 1 1-3 3-2-2zM4 10.5l1 1 2-2 1 1-3 3-2-2zM4 15.5l1 1 2-2 1 1-3 3-2-2z"/></svg>
-              <span>Checklist</span>
-            </button>
+            <button class="seg-btn active" data-view="grid" title="Estante"><svg><use href="#i-grid"/></svg><span>Estante</span></button>
+            <button class="seg-btn" data-view="list" title="Checklist"><svg><use href="#i-list"/></svg><span>Checklist</span></button>
           </div>
         </div>
       </section>
@@ -95,11 +144,22 @@
       <section id="library" aria-live="polite"></section>
 
       <section id="empty" class="empty" hidden>
-        <div class="empty-art" aria-hidden="true">📚</div>
-        <h2>Sua estante está vazia</h2>
-        <p>Adicione seus livros em PDF para ler aqui dentro e acompanhar o progresso, status e prazo de cada um.</p>
-        <button class="btn primary" data-action="add">Adicionar PDF</button>
-        <p class="hint">Dica: você também pode arrastar arquivos PDF para esta janela.</p>
+        <div class="empty-books" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+        <h2>Monte sua estante</h2>
+        <p>Traga seus livros em PDF para ler aqui e acompanhar progresso, status e prazo de cada um.</p>
+        <div class="start-options">
+          <button class="start-opt" data-action="drive">
+            <span class="so-icon drive"><svg><use href="#i-drive"/></svg></span>
+            <strong>Conectar Google Drive</strong>
+            <small>Importa os PDFs da sua pasta de leitura e sincroniza o progresso entre PC e celular.</small>
+            <em>Recomendado</em>
+          </button>
+          <button class="start-opt" data-action="add">
+            <span class="so-icon"><svg><use href="#i-phone"/></svg></span>
+            <strong>Adicionar do aparelho</strong>
+            <small>Escolha arquivos PDF deste computador ou celular. Você também pode arrastá-los para cá.</small>
+          </button>
+        </div>
       </section>
     </main>
   </div>
@@ -109,21 +169,19 @@
   <!-- ============ LEITOR ============ -->
   <section id="reader" hidden aria-label="Leitor de PDF">
     <header class="reader-bar">
-      <button class="icon-btn" id="rdBack" aria-label="Voltar para a estante">
-        <svg viewBox="0 0 24 24"><path d="M15.4 5.4 14 4l-8 8 8 8 1.4-1.4L8.8 12z"/></svg>
-      </button>
-      <div class="reader-title" id="rdTitle"></div>
+      <button class="icon-btn" id="rdBack" aria-label="Voltar para a estante" title="Voltar (Esc)"><svg><use href="#i-back"/></svg></button>
+      <div class="reader-title"><strong id="rdTitle"></strong><small id="rdSub"></small></div>
       <div class="reader-tools">
-        <button class="icon-btn hide-sm" id="rdZoomOut" aria-label="Diminuir zoom"><svg viewBox="0 0 24 24"><path d="M5 11h14v2H5z"/></svg></button>
-        <button class="zoom-label hide-sm" id="rdZoomFit" title="Ajustar à largura">100%</button>
-        <button class="icon-btn hide-sm" id="rdZoomIn" aria-label="Aumentar zoom"><svg viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg></button>
+        <button class="icon-btn hide-sm" id="rdZoomOut" aria-label="Diminuir zoom" title="Diminuir zoom (−)"><svg viewBox="0 0 24 24"><path d="M5 11h14v2H5z"/></svg></button>
+        <button class="zoom-label hide-sm" id="rdZoomFit" title="Ajustar à largura (0)">100%</button>
+        <button class="icon-btn hide-sm" id="rdZoomIn" aria-label="Aumentar zoom" title="Aumentar zoom (+)"><svg><use href="#i-plus"/></svg></button>
         <button class="icon-btn" id="rdNight" aria-label="Modo noturno da página" title="Modo noturno">
           <svg viewBox="0 0 24 24"><path d="M12.3 3a9 9 0 1 0 8.7 11.3A7 7 0 0 1 12.3 3Z"/></svg>
         </button>
-        <button class="icon-btn" id="rdBookmark" aria-label="Marcar esta página" title="Marcador">
+        <button class="icon-btn" id="rdBookmark" aria-label="Marcar esta página" title="Marcador (B)">
           <svg viewBox="0 0 24 24"><path class="bm-fill" d="M6 3h12v18l-6-4-6 4z"/></svg>
         </button>
-        <button class="icon-btn" id="rdInfo" aria-label="Detalhes do livro" title="Detalhes">
+        <button class="icon-btn" id="rdInfo" aria-label="Detalhes do livro" title="Detalhes e checklist">
           <svg viewBox="0 0 24 24"><path d="M11 10h2v7h-2zM11 7h2v2h-2z"/><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 18.2a8.2 8.2 0 1 1 0-16.4 8.2 8.2 0 0 1 0 16.4Z"/></svg>
         </button>
       </div>
@@ -136,22 +194,29 @@
         <input id="rdPage" type="number" min="1" inputmode="numeric" aria-label="Página atual">
         <span>/ <span id="rdTotal">0</span></span>
       </div>
-      <input id="rdSlider" type="range" min="1" value="1" aria-label="Posição no livro">
+      <div class="slider-wrap">
+        <input id="rdSlider" type="range" min="1" value="1" aria-label="Posição no livro">
+        <div class="rd-ticks" id="rdTicks"></div>
+      </div>
       <span class="rd-pct" id="rdPct">0%</span>
       <div class="show-sm zoom-sm">
         <button class="icon-btn" id="rdZoomOutSm" aria-label="Diminuir zoom"><svg viewBox="0 0 24 24"><path d="M5 11h14v2H5z"/></svg></button>
-        <button class="icon-btn" id="rdZoomInSm" aria-label="Aumentar zoom"><svg viewBox="0 0 24 24"><path d="M11 5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg></button>
+        <button class="icon-btn" id="rdZoomInSm" aria-label="Aumentar zoom"><svg><use href="#i-plus"/></svg></button>
       </div>
     </footer>
-    <div class="reader-loading" id="rdLoading">Abrindo livro…</div>
+    <div class="reader-loading" id="rdLoading">
+      <div class="spinner"></div>
+      <p id="rdLoadingText">Abrindo livro…</p>
+      <div class="dl-bar" id="rdDlBar" hidden><span id="rdDlFill"></span></div>
+    </div>
   </section>
 
   <!-- ============ DETALHES ============ -->
   <dialog id="details">
     <form method="dialog" id="detailsForm">
       <header class="dlg-head">
-        <h2 id="dTitleHead">Detalhes do livro</h2>
-        <button class="icon-btn" value="cancel" aria-label="Fechar"><svg viewBox="0 0 24 24"><path d="m6.4 5 5.6 5.6L17.6 5 19 6.4 13.4 12l5.6 5.6-1.4 1.4-5.6-5.6L6.4 19 5 17.6l5.6-5.6L5 6.4z"/></svg></button>
+        <h2>Detalhes do livro</h2>
+        <button class="icon-btn" value="cancel" aria-label="Fechar"><svg><use href="#i-close"/></svg></button>
       </header>
       <div class="dlg-body">
         <div class="d-top">
@@ -184,16 +249,25 @@
           <label>Prazo<input type="date" name="deadline"></label>
           <label>Página atual<input type="number" name="currentPage" min="1" inputmode="numeric"></label>
         </div>
-        <p class="d-plan" id="dPlan"></p>
+        <div class="quick-dates">
+          <span>Prazo rápido:</span>
+          <button type="button" data-days="7">1 semana</button>
+          <button type="button" data-days="14">2 semanas</button>
+          <button type="button" data-days="30">1 mês</button>
+          <button type="button" data-days="0">Sem prazo</button>
+        </div>
+        <div class="d-plan" id="dPlan"></div>
+        <label>Coleção<input name="collection" list="collectionList" placeholder="Ex.: Filosofia, Trabalho, Faculdade…"></label>
+        <datalist id="collectionList"></datalist>
 
         <fieldset class="checklist">
           <legend>Checklist do livro <span class="muted" id="dCheckCount"></span></legend>
           <ul id="dChecklist"></ul>
           <div class="check-add">
-            <input id="dCheckInput" placeholder="Ex.: Capítulo 1, Fazer resumo, Revisar anotações…">
+            <input id="dCheckInput" placeholder="Ex.: Capítulo 1, Fazer resumo…">
             <button type="button" class="btn" id="dCheckAdd">Adicionar</button>
           </div>
-          <button type="button" class="linkish" id="dCheckChapters">Gerar itens a partir do sumário do PDF</button>
+          <button type="button" class="linkish" id="dCheckChapters">✨ Gerar itens a partir do sumário do PDF</button>
         </fieldset>
 
         <label>Anotações<textarea name="notes" rows="4" placeholder="Ideias, citações, resumo…"></textarea></label>
@@ -203,11 +277,8 @@
           <div id="dBookmarks" class="bm-list"></div>
         </div>
 
-        <div class="relink" id="dRelink" hidden>
-          <p>⚠️ O arquivo PDF deste livro não está neste aparelho.</p>
-          <button type="button" class="btn" id="dRelinkBtn">Anexar PDF</button>
-          <input type="file" id="dRelinkInput" accept="application/pdf,.pdf" hidden>
-        </div>
+        <div class="file-box" id="dFile"></div>
+        <input type="file" id="dRelinkInput" accept="application/pdf,.pdf" hidden>
       </div>
       <footer class="dlg-foot">
         <button type="button" class="btn danger-ghost" id="dDelete">Excluir</button>
@@ -216,6 +287,52 @@
         <button class="btn primary" value="save">Salvar</button>
       </footer>
     </form>
+  </dialog>
+
+  <!-- ============ GOOGLE DRIVE ============ -->
+  <dialog id="driveDlg">
+    <div class="dlg-wrap">
+      <header class="dlg-head">
+        <h2><svg class="g-ico"><use href="#i-drive"/></svg> Google Drive</h2>
+        <button class="icon-btn" data-close aria-label="Fechar"><svg><use href="#i-close"/></svg></button>
+      </header>
+      <div class="dlg-body" id="driveBody"></div>
+    </div>
+  </dialog>
+
+  <!-- ============ AJUDA ============ -->
+  <dialog id="helpDlg">
+    <div class="dlg-wrap">
+      <header class="dlg-head">
+        <h2>Atalhos e dicas</h2>
+        <button class="icon-btn" data-close aria-label="Fechar"><svg><use href="#i-close"/></svg></button>
+      </header>
+      <div class="dlg-body help">
+        <h4>No leitor</h4>
+        <ul class="keys">
+          <li><kbd>→</kbd> <kbd>Espaço</kbd> próxima página</li>
+          <li><kbd>←</kbd> <kbd>Shift</kbd>+<kbd>Espaço</kbd> página anterior</li>
+          <li><kbd>+</kbd> <kbd>−</kbd> <kbd>0</kbd> zoom / ajustar à largura</li>
+          <li><kbd>B</kbd> marcar página · <kbd>N</kbd> modo noturno</li>
+          <li><kbd>Esc</kbd> voltar para a estante</li>
+        </ul>
+        <h4>Na estante</h4>
+        <ul class="keys">
+          <li><kbd>/</kbd> buscar · <kbd>Ctrl</kbd>+roda do mouse no leitor = zoom</li>
+        </ul>
+        <h4>No celular</h4>
+        <ul>
+          <li>Toque no meio da página para esconder/mostrar as barras.</li>
+          <li>Use dois dedos para dar zoom.</li>
+          <li>No navegador, “Adicionar à tela inicial” instala o HubBooks como app.</li>
+        </ul>
+        <h4>Progresso</h4>
+        <ul>
+          <li>A página onde você parou é salva automaticamente.</li>
+          <li>Com o Google Drive conectado, o progresso é sincronizado entre seus aparelhos.</li>
+        </ul>
+      </div>
+    </div>
   </dialog>
 
   <div id="toasts" aria-live="polite"></div>

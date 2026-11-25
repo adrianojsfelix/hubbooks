@@ -1,6 +1,6 @@
 // Armazenamento local (IndexedDB): metadados dos livros + arquivos PDF.
 const DB_NAME = 'hubbooks';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 let dbPromise;
 
 function open() {
@@ -11,6 +11,7 @@ function open() {
         const db = req.result;
         if (!db.objectStoreNames.contains('books')) db.createObjectStore('books', { keyPath: 'id' });
         if (!db.objectStoreNames.contains('files')) db.createObjectStore('files', { keyPath: 'id' });
+        if (!db.objectStoreNames.contains('meta')) db.createObjectStore('meta', { keyPath: 'key' });
       };
       req.onsuccess = () => resolve(req.result);
       req.onerror = () => reject(req.error);
@@ -39,4 +40,6 @@ export const db = {
   getFile: async id => (await run('files', 'readonly', s => s.get(id)))?.data,
   deleteFile: id => run('files', 'readwrite', s => s.delete(id)),
   fileIds: () => run('files', 'readonly', s => s.getAllKeys()),
+  getMeta: async key => (await run('meta', 'readonly', s => s.get(key)))?.value,
+  setMeta: (key, value) => run('meta', 'readwrite', s => s.put({ key, value })),
 };

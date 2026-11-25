@@ -1,8 +1,8 @@
 // Service worker: guarda o app em cache para funcionar offline.
-const CACHE = 'hubbooks-v1';
+const CACHE = 'hubbooks-v2';
 const CORE = [
   './', 'index.html', 'styles.css', 'manifest.webmanifest',
-  'js/app.js', 'js/db.js', 'js/pdf.js', 'js/reader.js',
+  'js/app.js', 'js/db.js', 'js/pdf.js', 'js/reader.js', 'js/drive.js', 'js/config.js',
   'lib/pdfjs/pdf.min.mjs', 'lib/pdfjs/pdf.worker.min.mjs',
   'icons/icon.svg', 'icons/icon-192.png',
 ];

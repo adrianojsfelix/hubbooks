@@ -66,6 +66,7 @@ export class Reader {
     }, { passive: false });
 
     this.bindPinch();
+    $('rdTicks').addEventListener('click', e => { const p = e.target.dataset.p; if (p) this.goTo(+p, 'jump'); });
 
     document.addEventListener('keydown', e => {
       if (this.el.hidden || document.querySelector('dialog[open]')) return;
@@ -79,6 +80,8 @@ export class Reader {
       else if (k === '+' || k === '=') this.setZoom(this.zoom * 1.2);
       else if (k === '-') this.setZoom(this.zoom / 1.2);
       else if (k === '0') this.setZoom(1);
+      else if (k === 'b' || k === 'B') $('rdBookmark').click();
+      else if (k === 'n' || k === 'N') $('rdNight').click();
     });
 
     let resizeT;
@@ -125,20 +128,38 @@ export class Reader {
     $('rdNight').classList.toggle('on', this.night);
   }
 
-  async open(book, data, startPage) {
+  /** Mostra o leitor (com tela de carregamento) antes de o PDF estar pronto. */
+  show(book) {
     this.book = book;
     this.el.hidden = false;
     this.el.classList.remove('immersive');
     document.body.style.overflow = 'hidden';
     $('rdTitle').textContent = book.title;
-    $('rdLoading').hidden = false;
-    this.applyNight();
+    $('rdSub').textContent = book.author || '';
     this.pagesEl.innerHTML = '';
+    $('rdTicks').innerHTML = '';
+    $('rdTotal').textContent = book.totalPages || '…';
+    $('rdPage').value = book.currentPage || 1;
+    this.setLoading('Abrindo livro…');
+    this.applyNight();
+  }
+
+  setLoading(text, progress) {
+    $('rdLoading').hidden = text == null;
+    if (text == null) return;
+    $('rdLoadingText').textContent = text;
+    $('rdDlBar').hidden = progress == null;
+    if (progress != null) $('rdDlFill').style.width = Math.round(progress * 100) + '%';
+  }
+
+  async open(book, data, startPage) {
+    if (this.book !== book || this.el.hidden) this.show(book);
+    this.setLoading('Abrindo livro…');
     this.zoom = book.zoom || 1;
     try {
       this.pdf = await loadPdf(data);
     } catch (err) {
-      $('rdLoading').textContent = 'Não foi possível abrir este PDF.';
+      this.setLoading('Não foi possível abrir este PDF.');
       throw err;
     }
     if (this.book !== book) return; // fechado durante o carregamento
@@ -149,7 +170,7 @@ export class Reader {
     $('rdSlider').max = n;
     $('rdPage').max = n;
     this.buildPages();
-    $('rdLoading').hidden = true;
+    this.setLoading(null);
     this.page = 0;
     this.goTo(Math.min(Math.max(1, startPage || 1), n), 'open', false);
     this.scroller.focus({ preventScroll: true });
@@ -167,7 +188,7 @@ export class Reader {
     this.pdf = null;
     this.book = null;
     this.pagesEl.innerHTML = '';
-    $('rdLoading').textContent = 'Abrindo livro…';
+    this.setLoading('Abrindo livro…');
     this.cb.onClose(book, this.zoom);
   }
 
@@ -320,4 +341,11 @@ export class Reader {
   }
 
   setBookmarked(on) { $('rdBookmark').classList.toggle('on', on); }
+
+  /** Marquinhas dos marcadores sobre a barra de posição. */
+  setTicks(pages) {
+    const total = this.pdf?.numPages || this.book?.totalPages || 1;
+    $('rdTicks').innerHTML = pages.map(p =>
+      `<button style="left:${total > 1 ? ((p - 1) / (total - 1)) * 100 : 0}%" data-p="${p}" title="Marcador: pág. ${p}"></button>`).join('');
+  }
 }

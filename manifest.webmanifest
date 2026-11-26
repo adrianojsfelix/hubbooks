@@ -1,7 +1,7 @@
 {
-  "name": "HubBooks — sua estante de PDFs",
-  "short_name": "HubBooks",
-  "description": "Leia seus livros em PDF e acompanhe progresso, status e prazos.",
+  "name": "HubDrive — livros e cursos do seu Drive",
+  "short_name": "HubDrive",
+  "description": "Leia seus livros, assista seus cursos do Google Drive e acompanhe progresso, checklists e prazos.",
   "lang": "pt-BR",
   "start_url": "./",
   "scope": "./",

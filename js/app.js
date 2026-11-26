@@ -613,11 +613,11 @@ async function showStorage() {
 }
 
 function exportBackup() {
-  const data = { app: 'hubbooks', version: 1, exportedAt: new Date().toISOString(), books: state.books, courses: courses?.export() || [], tombstones: state.tombstones, settings: { goal: state.goal, goalAt: +load('hb-goal-at', '0') } };
+  const data = { app: 'hubdrive', version: 1, exportedAt: new Date().toISOString(), books: state.books, courses: courses?.export() || [], tombstones: state.tombstones, settings: { goal: state.goal, goalAt: +load('hb-goal-at', '0') } };
   const blob = new Blob([JSON.stringify(data, null, 1)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `hubbooks-backup-${dateKey()}.json`;
+  a.download = `hubdrive-backup-${dateKey()}.json`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 2000);
   toast('Backup exportado (progresso, status, prazos, checklists e notas). Os PDFs não vão no backup.', null, 6000);
@@ -626,7 +626,7 @@ function exportBackup() {
 async function importBackup(file) {
   try {
     const data = JSON.parse(await file.text());
-    if (data.app !== 'hubbooks' || !Array.isArray(data.books)) throw new Error('formato');
+    if (!['hubdrive', 'hubbooks'].includes(data.app) || !Array.isArray(data.books)) throw new Error('formato');
     const n = await mergeRemote(data);
     await refresh();
     const missing = state.books.filter(b => b.source !== 'drive' && !state.files.has(b.id)).length;
@@ -1149,7 +1149,7 @@ async function connectDrive() {
 
 function renderDriveDialog(extra = '') {
   const intro = `<div class="drive-intro"><span class="so-icon drive"><svg><use href="#i-drive"/></svg></span>
-    <p>Conecte sua conta para <b>importar os PDFs da sua pasta de leitura</b> e <b>sincronizar progresso, status e prazos</b> entre PC e celular. O HubBooks só lê seus arquivos; nada é alterado no seu Drive.</p></div>`;
+    <p>Conecte sua conta para <b>importar os PDFs da sua pasta de leitura</b> e <b>sincronizar progresso, status e prazos</b> entre PC e celular. O HubDrive só lê seus arquivos; nada é alterado no seu Drive.</p></div>`;
 
   if (!drive.clientId) {
     driveBody.innerHTML = `${intro}
@@ -1378,7 +1378,7 @@ async function syncNow(verbose = false) {
       try { remote = await drive.readSync(); } catch (err) { if (err instanceof DriveAuthError) throw err; }
       const changed = remote ? await mergeRemote(remote) : 0;
       await drive.writeSync({
-        app: 'hubbooks', version: 1, updatedAt: Date.now(),
+        app: 'hubdrive', version: 1, updatedAt: Date.now(),
         books: state.books.map(({ cover, zoom, ...b }) => b), // capas ficam só no aparelho
         courses: courses?.export() || [],
         tombstones: state.tombstones, settings: { goal: state.goal, goalAt: +load('hb-goal-at', '0') },

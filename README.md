@@ -1,6 +1,6 @@
-# HubBooks 📚
+# HubDrive 📚
 
-Estante pessoal de livros em PDF: leia dentro do app e acompanhe **progresso, status, prazo e checklist** de cada livro. Funciona no PC e no celular (pode ser instalado como app — PWA) e funciona offline.
+Seus **livros (PDF)** e **cursos em vídeo** do Google Drive em um só lugar: leia e assista dentro do app e acompanhe **progresso, status, prazo e checklist** de cada um. Funciona no PC e no celular (pode ser instalado como app — PWA) e funciona offline.
 
 ## Novidades
 - **Google Drive**: importa os PDFs da sua pasta de leitura (subpastas viram coleções; pastas "LIDOS" entram como concluídos). Os PDFs são baixados só quando você abre o livro e ficam disponíveis offline.
@@ -12,7 +12,7 @@ Estante pessoal de livros em PDF: leia dentro do app e acompanhe **progresso, st
 - Adicione a pasta de um curso do Google Drive (cole o link ou busque pelo nome) e escolha quais módulos entram.
 - As aulas (vídeos) viram um **checklist por módulo e tópico**, com progresso, tempo restante e destaque da aula atual.
 - **Assista dentro do app**: o vídeo é transmitido direto do Drive, lembra onde você parou, tem controle de velocidade e marca a aula como assistida ao chegar em 90%. Ao terminar, oferece a próxima aula.
-- PDFs da aula abrem no leitor do HubBooks; pastas só com PDFs (apostilas) viram itens do checklist.
+- PDFs da aula abrem no leitor do HubDrive; pastas só com PDFs (apostilas) viram itens do checklist.
 - **Mapas mentais**: escolha a pasta com as imagens (ex.: SEGURIDADE SOCIAL); cada mapa aparece na aula correspondente pelo nome (ou vincule manualmente) e abre em tela cheia com zoom.
 - Anotações por aula e “marcar todas até esta como assistidas” para quem já está no meio do curso.
 - Atalhos: Espaço (play/pausa), ← → (10 s), N/P (próxima/anterior), M (marcar).
@@ -41,6 +41,12 @@ Permissões pedidas: leitura dos arquivos (`drive.readonly`) e a pasta privada d
 
 ## Onde ficam os dados
 Os PDFs e o progresso ficam **no navegador do aparelho** (IndexedDB). Com o Google Drive conectado, o progresso é copiado para a pasta privada do app no **seu** Drive e sincronizado entre aparelhos. Sem Drive, use *Exportar/Importar backup* (menu ⋮).
+
+## Publicação (GitHub Pages)
+O workflow `.github/workflows/pages.yml` publica o app automaticamente a cada atualização do branch `main`.
+Uma única vez: no GitHub, **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+O endereço fica `https://adrianojsfelix.github.io/hubbooks/` (ou o novo nome, se o repositório for renomeado).
+Lembre de adicionar esse endereço (`https://adrianojsfelix.github.io`) nas *Origens JavaScript autorizadas* do ID do cliente OAuth.
 
 ## Como usar
 É um site estático, sem build. Sirva a pasta com qualquer servidor HTTP:

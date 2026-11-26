@@ -7,7 +7,7 @@ import { CONFIG } from './config.js';
 const API = 'https://www.googleapis.com/drive/v3';
 const UPLOAD = 'https://www.googleapis.com/upload/drive/v3';
 const SCOPES = 'https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/drive.appdata';
-const SYNC_NAME = 'hubbooks-sync.json';
+const SYNC_NAME = 'hubdrive-sync.json';
 const FOLDER = 'application/vnd.google-apps.folder';
 
 const ls = {

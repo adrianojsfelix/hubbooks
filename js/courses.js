@@ -331,7 +331,7 @@ function playLesson(l, { autoplay = true } = {}) {
     v.hidden = true;
     v.removeAttribute('src'); v.load();
     showPlayerMsg(`📄 ${pretty(l.materials[0]?.name || l.title)}`, [
-      ['Ler no HubBooks', () => ctx.openDrivePdf(l.materials[0], c.title, pretty(l.title))],
+      ['Ler no HubDrive', () => ctx.openDrivePdf(l.materials[0], c.title, pretty(l.title))],
       ['Abrir no Drive', () => window.open(drive.viewUrl(l.fileId), '_blank', 'noopener')],
     ], true);
   }
@@ -393,7 +393,7 @@ function renderPanels() {
   const mats = l.materials || [];
   $('panelLesson').innerHTML = `
     ${mats.length ? `<div class="mat-list">${mats.map(m => `<div class="mat"><svg><use href="#i-file"/></svg><span>${ctx.esc(pretty(m.name) === 'Aula' ? 'Material da aula (PDF)' : pretty(m.name))}</span>
-      <button class="btn sm primary" data-read="${m.id}">Ler no HubBooks</button><a class="btn sm" href="${drive.viewUrl(m.id)}" target="_blank" rel="noopener">Drive</a></div>`).join('')}</div>`
+      <button class="btn sm primary" data-read="${m.id}">Ler no HubDrive</button><a class="btn sm" href="${drive.viewUrl(m.id)}" target="_blank" rel="noopener">Drive</a></div>`).join('')}</div>`
       : '<p class="note">Esta aula não tem PDF de apoio.</p>'}
     <div class="drive-row">
       <a class="linkish" href="${drive.folderUrl(l.folderId)}" target="_blank" rel="noopener">Abrir pasta da aula no Drive</a>
@@ -404,7 +404,7 @@ function renderPanels() {
   const mine = mapsForLesson(c, l.id);
   $('mapsN').textContent = mine.length || '';
   if (!c.mapsFolder) {
-    $('panelMaps').innerHTML = `<div class="maps-cta"><p>Escolha a pasta do Drive onde você guarda seus <b>mapas mentais</b> (imagens). O HubBooks mostra o mapa de cada aula automaticamente pelo nome — e você pode vincular manualmente.</p>
+    $('panelMaps').innerHTML = `<div class="maps-cta"><p>Escolha a pasta do Drive onde você guarda seus <b>mapas mentais</b> (imagens). O HubDrive mostra o mapa de cada aula automaticamente pelo nome — e você pode vincular manualmente.</p>
       <button class="btn primary" data-pick-maps>Escolher pasta de mapas</button></div>`;
   } else {
     const links = mapLinks(c);

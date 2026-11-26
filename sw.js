@@ -1,5 +1,5 @@
 // Service worker: guarda o app em cache para funcionar offline.
-const CACHE = 'hubbooks-v3';
+const CACHE = 'hubdrive-v4';
 const CORE = [
   './', 'index.html', 'styles.css', 'manifest.webmanifest',
   'js/app.js', 'js/db.js', 'js/pdf.js', 'js/reader.js', 'js/drive.js', 'js/config.js', 'js/courses.js',

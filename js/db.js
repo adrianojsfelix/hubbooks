@@ -1,5 +1,5 @@
 // Armazenamento local (IndexedDB): metadados dos livros + arquivos PDF.
-const DB_NAME = 'hubbooks';
+const DB_NAME = 'hubdrive';
 const DB_VERSION = 3;
 let dbPromise;
 
